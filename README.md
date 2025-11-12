@@ -142,17 +142,33 @@ curl -X POST http://localhost:5000/api/openrouter \
   -d '{"query": "What are emergency procedures?"}'
 ```
 
-### Comparison Demo
-The website provides a side-by-side comparison between three AI models:
-- **🎯 AURA AI**: Fine-tuned model specialized for EVA procedures
-- **📚 Vanilla RAG**: Retrieval-augmented generation using local data
-- **🤖 Base Llama Model**: General purpose AI via OpenRouter
+## 🧪 **AI Model Comparison Demo**
 
-Each shows:
+**The Problem: A Life-Critical, Real-Time System**
+
+Your AURA paper defines a system that must do three things:
+- **Be Sovereign**: Work with zero connection to Earth due to communication latency
+- **Be Instantaneous**: Part of a "sense-decide-act loop" under 100 milliseconds
+- **Be a "Symbiote"**: An "active, intelligent partner" fusing live biometric/suit data
+
+### **Three AI Models Compared:**
+
+| Feature | Vanilla LLM (Tourist) | RAG (Librarian) | Fine-Tuned (Partner) |
+|---------|----------------------|-----------------|---------------------|
+| **Domain Knowledge** | ❌ None | ✅ Has the book | ✅ Is the book |
+| **Inference Speed** | Fast | ❌ Slow (Must search) | ✅ Instant (Reflex) |
+| **Context Window** | ✅ Free | ❌ Clogged (Full of PDF) | ✅ Free (Ready for sensor data) |
+| **Role** | Ignorant | Passive Tool | Active Symbiote |
+
+**🎯 AURA AI (Fine-tuned)** - Your crewmate who has memorized the EVA manual
+**📚 Vanilla RAG** - Librarian who must search the manual each time
+**🤖 Base Llama Model** - Tourist with no local knowledge
+
+### **Real-Time Metrics:**
 - Response time in milliseconds
 - Context token usage (input tokens)
 - Full response text (scrollable after 5 lines)
-- Comparison summary with performance metrics
+- Performance comparison summary
 
 ## 📚 Usage Examples
 
