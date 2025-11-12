@@ -63,8 +63,16 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+    // Mock token usage for demo (in production, get from actual API)
+    const mockUsage = {
+      prompt_tokens: Math.floor(query.length / 4) + 10, // Rough estimate
+      completion_tokens: Math.floor(mockResponse.length / 4),
+      total_tokens: Math.floor((query.length + mockResponse.length) / 4) + 10
+    };
+
     return res.status(200).json({
       procedure: mockResponse,
+      usage: mockUsage,
       timestamp: new Date().toISOString(),
       query: query
     });

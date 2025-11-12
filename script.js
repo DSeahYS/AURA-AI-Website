@@ -12,154 +12,149 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeScrollAnimations();
 });
 
-// Demo functionality
+// Comparison Demo functionality
 function initializeDemo() {
-    const demoQuery = document.getElementById('demo-query');
-    const demoSubmit = document.getElementById('demo-submit');
-    const responseDisplay = document.getElementById('response-display');
-    const responseTiming = document.getElementById('response-timing');
+    const comparisonQuery = document.getElementById('comparison-query');
+    const compareBtn = document.getElementById('compare-btn');
 
-    demoSubmit.addEventListener('click', async () => {
-        const query = demoQuery.value.trim();
+    compareBtn.addEventListener('click', async () => {
+        const query = comparisonQuery.value.trim();
 
         if (!query) {
-            showError('Please enter a question about EVA procedures.');
+            showComparisonError('Please enter a question to compare both models.');
             return;
         }
 
         // Show loading state
-        setLoadingState(true);
+        setComparisonLoadingState(true);
+
+        // Clear previous results
+        clearComparisonResults();
 
         const startTime = Date.now();
 
         try {
-            // Call AURA API (replace with your actual API endpoint)
-            const response = await callAuraAPI(query);
+            // Make simultaneous API calls to all three models
+            const [auraResult, ragResult, openrouterResult] = await Promise.allSettled([
+                callAuraAPI(query),
+                callRAGAPI(query),
+                callOpenRouterAPI(query)
+            ]);
 
-            const endTime = Date.now();
-            const responseTime = endTime - startTime;
+            const totalTime = Date.now() - startTime;
 
-            // Update UI
-            updateResponse(response, responseTime);
+            // Process AURA result
+            if (auraResult.status === 'fulfilled') {
+                updateAuraResponse(auraResult.value);
+            } else {
+                showAuraError('AURA API error: ' + auraResult.reason.message);
+            }
+
+            // Process RAG result
+            if (ragResult.status === 'fulfilled') {
+                updateRAGResponse(ragResult.value);
+            } else {
+                showRAGError('RAG API error: ' + ragResult.reason.message);
+            }
+
+            // Process OpenRouter result
+            if (openrouterResult.status === 'fulfilled') {
+                updateOpenRouterResponse(openrouterResult.value);
+            } else {
+                showOpenRouterError('OpenRouter API error: ' + openrouterResult.reason.message);
+            }
+
+            // Show comparison summary
+            showComparisonSummary(auraResult, ragResult, openrouterResult, totalTime);
 
         } catch (error) {
-            console.error('API Error:', error);
-            showError('Unable to get response from AURA AI. Please try again later.');
-            responseTiming.textContent = '-- ms';
+            console.error('Comparison Error:', error);
+            showComparisonError('Unable to complete comparison. Please try again later.');
         } finally {
-            setLoadingState(false);
+            setComparisonLoadingState(false);
         }
     });
 
     // Allow Enter key to submit (Ctrl+Enter for multi-line)
-    demoQuery.addEventListener('keydown', function(e) {
+    comparisonQuery.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
-            demoSubmit.click();
+            compareBtn.click();
         }
     });
 }
 
-// API call function (replace with your actual API endpoint)
+// API call functions
 async function callAuraAPI(query) {
-    // For demo purposes, return a mock response
-    // Replace this with actual API call to your backend
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
+    const startTime = Date.now();
+    const response = await fetch('http://localhost:5000/api/query', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query })
+    });
 
-    // Mock responses based on query content
-    const responses = {
-        'suit pressure': `EMERGENCY SUIT PRESSURE PROTOCOL:
-
-1. IMMEDIATE ACTIONS:
-   - Freeze all movement
-   - Announce "MAYDAY, MAYDAY - Suit pressure emergency"
-   - Check wrist readout for exact pressure value
-
-2. CRITICAL THRESHOLDS:
-   - Below 3.0 psi: TREAT AS CRITICAL
-   - Below 2.5 psi: ABORT EVA immediately
-
-3. EMERGENCY PROCEDURES:
-   - Activate suit emergency oxygen
-   - Prepare for emergency airlock repressurization
-   - Contact mission control with pressure readings
-
-4. PREVENTION MEASURES:
-   - Regular suit integrity checks
-   - Monitor pressure gauges continuously
-   - Report any anomalies immediately`,
-
-        'airlock': `AIRLOCK DEPRESSURIZATION CHECKLIST:
-
-PRE-EVA AIRLOCK DEPRESSURIZATION SEQUENCE:
-
-1. INNER HATCH VERIFICATION:
-   - Close and dog inner hatch (3 full rotations)
-   - Verify 4 green indicators on inner seal
-   - Confirm pressure equalization
-
-2. DEPRESSURIZATION INITIATION:
-   - Announce "Depressurization sequence starting"
-   - Activate depressurization pump
-   - Monitor pressure drop to 3.8 psi
-
-3. OUTER HATCH OPERATIONS:
-   - Verify outer hatch indicators (all green)
-   - Equalize pressure with EVA environment
-   - Prepare for hatch opening
-
-4. FINAL CHECKS:
-   - Confirm suit pressure stability
-   - Verify communications systems
-   - Complete pre-EVA safety checklist`,
-
-        'communication': `COMMUNICATION FAILURE PROTOCOLS:
-
-PRIMARY COMMUNICATION LOSS RESPONSE:
-
-1. IMMEDIATE ASSESSMENT:
-   - Attempt primary channel reconnection (30 seconds)
-   - Switch to backup communication system
-   - Verify antenna positioning and power
-
-2. EMERGENCY COMMUNICATION:
-   - Activate emergency beacon if available
-   - Use suit-to-suit direct communication
-   - Establish line-of-sight visual signals
-
-3. MISSION CONTROL COORDINATION:
-   - Use satellite relay if available
-   - Implement pre-established emergency protocols
-   - Maintain position for rescue operations
-
-4. PREVENTION AND RECOVERY:
-   - Regular communication system checks
-   - Maintain emergency frequency monitoring
-   - Document all communication anomalies`
-    };
-
-    // Find matching response or provide default
-    const queryLower = query.toLowerCase();
-    for (const [key, response] of Object.entries(responses)) {
-        if (queryLower.includes(key)) {
-            return response;
-        }
+    if (!response.ok) {
+        throw new Error('AURA API request failed');
     }
 
-    // Default response for unrecognized queries
-    return `AURA EVA ASSISTANT RESPONSE:
+    const data = await response.json();
+    const endTime = Date.now();
 
-Based on your query: "${query}"
+    return {
+        text: data.procedure,
+        usage: data.usage || { total_tokens: 0 },
+        responseTime: endTime - startTime
+    };
+}
 
-While I don't have specific protocol information for this exact scenario, here are the general EVA safety guidelines:
+async function callRAGAPI(query) {
+    const startTime = Date.now();
+    const response = await fetch('http://localhost:5000/api/rag', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query })
+    });
 
-1. MAINTAIN CONSTANT AWARENESS of your environment
-2. MONITOR all suit systems continuously
-3. COMMUNICATE regularly with mission control
-4. FOLLOW established safety protocols
-5. REPORT any anomalies immediately
+    if (!response.ok) {
+        throw new Error('RAG API request failed');
+    }
 
-For specific procedures, please provide more details about the EVA operation or emergency situation.`;
+    const data = await response.json();
+    const endTime = Date.now();
+
+    return {
+        text: data.answer,
+        usage: data.usage || { context_tokens: 0 },
+        responseTime: endTime - startTime
+    };
+}
+
+async function callOpenRouterAPI(query) {
+    const startTime = Date.now();
+    const response = await fetch('http://localhost:5000/api/openrouter', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query })
+    });
+
+    if (!response.ok) {
+        throw new Error('OpenRouter API request failed');
+    }
+
+    const data = await response.json();
+    const endTime = Date.now();
+
+    return {
+        text: data.answer,
+        usage: data.usage || { total_tokens: 0 },
+        responseTime: endTime - startTime
+    };
 }
 
 // UI state management
@@ -259,6 +254,132 @@ function trackPerformance() {
             console.log(`Page load time: ${loadTime.toFixed(2)} ms`);
         });
     }
+}
+
+// Comparison UI functions
+function setComparisonLoadingState(isLoading) {
+    const compareBtn = document.getElementById('compare-btn');
+    const btnText = compareBtn.querySelector('.btn-text');
+    const btnLoading = compareBtn.querySelector('.btn-loading');
+
+    if (isLoading) {
+        compareBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
+    } else {
+        compareBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+    }
+}
+
+function clearComparisonResults() {
+    document.getElementById('aura-response').innerHTML = '<div class="response-placeholder"><div class="placeholder-icon">🚀</div><p>AURA AI response will appear here</p><small>Specialized for EVA procedures</small></div>';
+    document.getElementById('rag-response').innerHTML = '<div class="response-placeholder"><div class="placeholder-icon">📖</div><p>RAG response will appear here</p><small>Retrieval-augmented generation</small></div>';
+    document.getElementById('openrouter-response').innerHTML = '<div class="response-placeholder"><div class="placeholder-icon">🧠</div><p>OpenRouter response will appear here</p><small>General purpose AI model</small></div>';
+    document.getElementById('aura-timing').textContent = '-- ms';
+    document.getElementById('aura-tokens').textContent = '--';
+    document.getElementById('rag-timing').textContent = '-- ms';
+    document.getElementById('rag-tokens').textContent = '--';
+    document.getElementById('openrouter-timing').textContent = '-- ms';
+    document.getElementById('openrouter-tokens').textContent = '--';
+    document.getElementById('comparison-summary').style.display = 'none';
+}
+
+function updateAuraResponse(result) {
+    const responseDiv = document.getElementById('aura-response');
+    const timingSpan = document.getElementById('aura-timing');
+    const tokensSpan = document.getElementById('aura-tokens');
+
+    responseDiv.innerHTML = `<div class="response-content">${result.text.replace(/\n/g, '<br>')}</div>`;
+    timingSpan.textContent = `${result.responseTime} ms`;
+    tokensSpan.textContent = result.usage.total_tokens;
+}
+
+function updateRAGResponse(result) {
+    const responseDiv = document.getElementById('rag-response');
+    const timingSpan = document.getElementById('rag-timing');
+    const tokensSpan = document.getElementById('rag-tokens');
+
+    responseDiv.innerHTML = `<div class="response-content">${result.text.replace(/\n/g, '<br>')}</div>`;
+    timingSpan.textContent = `${result.responseTime} ms`;
+    tokensSpan.textContent = result.usage.context_tokens;
+}
+
+function updateOpenRouterResponse(result) {
+    const responseDiv = document.getElementById('openrouter-response');
+    const timingSpan = document.getElementById('openrouter-timing');
+    const tokensSpan = document.getElementById('openrouter-tokens');
+
+    responseDiv.innerHTML = `<div class="response-content">${result.text.replace(/\n/g, '<br>')}</div>`;
+    timingSpan.textContent = `${result.responseTime} ms`;
+    tokensSpan.textContent = result.usage.prompt_tokens || result.usage.total_tokens;
+}
+
+function showAuraError(message) {
+    const responseDiv = document.getElementById('aura-response');
+    responseDiv.innerHTML = `<div class="error-message">${message}</div>`;
+    document.getElementById('aura-timing').textContent = '-- ms';
+    document.getElementById('aura-tokens').textContent = '--';
+}
+
+function showRAGError(message) {
+    const responseDiv = document.getElementById('rag-response');
+    responseDiv.innerHTML = `<div class="error-message">${message}</div>`;
+    document.getElementById('rag-timing').textContent = '-- ms';
+    document.getElementById('rag-tokens').textContent = '--';
+}
+
+function showOpenRouterError(message) {
+    const responseDiv = document.getElementById('openrouter-response');
+    responseDiv.innerHTML = `<div class="error-message">${message}</div>`;
+    document.getElementById('openrouter-timing').textContent = '-- ms';
+    document.getElementById('openrouter-tokens').textContent = '--';
+}
+
+function showComparisonError(message) {
+    clearComparisonResults();
+    const summaryDiv = document.getElementById('comparison-summary');
+    summaryDiv.style.display = 'block';
+    summaryDiv.innerHTML = `<h3>❌ Error</h3><p>${message}</p>`;
+}
+
+function showComparisonSummary(auraResult, ragResult, openrouterResult, totalTime) {
+    const summaryDiv = document.getElementById('comparison-summary');
+    const fasterModel = document.getElementById('faster-model');
+    const timeDifference = document.getElementById('time-difference');
+    const tokenComparison = document.getElementById('token-comparison');
+
+    if (auraResult.status === 'fulfilled' && ragResult.status === 'fulfilled' && openrouterResult.status === 'fulfilled') {
+        const auraTime = auraResult.value.responseTime;
+        const ragTime = ragResult.value.responseTime;
+        const orTime = openrouterResult.value.responseTime;
+
+        const auraTokens = auraResult.value.usage.total_tokens || 0;
+        const ragTokens = ragResult.value.usage.context_tokens || 0;
+        const orTokens = openrouterResult.value.usage.prompt_tokens || openrouterResult.value.usage.total_tokens || 0;
+
+        // Find fastest model
+        const times = [
+            { name: 'AURA AI', time: auraTime },
+            { name: 'RAG', time: ragTime },
+            { name: 'OpenRouter', time: orTime }
+        ];
+        const fastest = times.reduce((prev, current) => (prev.time < current.time) ? prev : current);
+
+        fasterModel.textContent = `${fastest.name} (fastest)`;
+        timeDifference.textContent = `${fastest.time} ms average response time`;
+
+        // Token efficiency comparison
+        tokenComparison.textContent = `Context tokens - AURA: ${auraTokens}, RAG: ${ragTokens}, OpenRouter: ${orTokens}`;
+
+        summaryDiv.style.display = 'block';
+    }
+}
+
+// Example query setter for comparison
+function setComparisonQuery(query) {
+    document.getElementById('comparison-query').value = query;
 }
 
 // Initialize performance tracking

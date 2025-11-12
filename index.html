@@ -133,55 +133,140 @@
         <!-- Demo Section -->
         <section id="demo" class="demo">
             <div class="section-container">
-                <h2 class="section-title">Interactive Demo</h2>
+                <h2 class="section-title">AI Model Comparison Demo</h2>
                 <p class="demo-intro">
-                    Experience AURA AI's capabilities with our interactive EVA procedure assistant.
-                    Ask questions about space suit operations, emergency procedures, or mission protocols.
+                    Compare AURA AI (fine-tuned for EVA procedures) vs Base Llama Model (general AI).
+                    See the difference in response quality, speed, and token usage.
                 </p>
 
-                <div class="demo-container">
-                    <div class="demo-input-section">
-                        <label for="demo-query" class="input-label">Ask AURA AI about EVA procedures:</label>
+                <div class="comparison-controls">
+                    <div class="query-input-section">
+                        <label for="comparison-query" class="input-label">Enter your EVA procedure question:</label>
                         <textarea
-                            id="demo-query"
-                            class="demo-input"
-                            placeholder="e.g., What are the steps for emergency suit pressure loss?"
+                            id="comparison-query"
+                            class="comparison-input"
+                            placeholder="e.g., Emergency: suit pressure below 3.0 psi—immediate actions?"
                             rows="3"
                         ></textarea>
-                        <button id="demo-submit" class="btn btn-primary demo-submit-btn">
-                            <span class="btn-text">Ask AURA AI</span>
-                            <span class="btn-loading" style="display: none;">Processing...</span>
+                        <button id="compare-btn" class="btn btn-primary compare-submit-btn">
+                            <span class="btn-text">Compare Both Models</span>
+                            <span class="btn-loading" style="display: none;">Comparing...</span>
                         </button>
                     </div>
+                </div>
 
-                    <div class="demo-output-section">
-                        <div class="response-header">
-                            <h3>AURA AI Response</h3>
-                            <div class="response-timing" id="response-timing">-- ms</div>
+                <div class="comparison-results">
+                    <div class="model-comparison">
+                        <!-- AURA Model Section -->
+                        <div class="model-section aura-section">
+                            <div class="model-header">
+                                <h3 class="model-title">🎯 AURA AI (Fine-tuned)</h3>
+                                <div class="model-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Response Time:</span>
+                                        <span class="stat-value" id="aura-timing">-- ms</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Context Tokens:</span>
+                                        <span class="stat-value" id="aura-tokens">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="model-response scrollable" id="aura-response">
+                                <div class="response-placeholder">
+                                    <div class="placeholder-icon">🚀</div>
+                                    <p>AURA AI response will appear here</p>
+                                    <small>Specialized for EVA procedures</small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="response-display" id="response-display">
-                            <div class="response-placeholder">
-                                <div class="placeholder-icon">🤖</div>
-                                <p>Your EVA procedure guidance will appear here</p>
+
+                        <!-- RAG Model Section -->
+                        <div class="model-section rag-section">
+                            <div class="model-header">
+                                <h3 class="model-title">📚 Vanilla RAG</h3>
+                                <div class="model-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Response Time:</span>
+                                        <span class="stat-value" id="rag-timing">-- ms</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Context Tokens:</span>
+                                        <span class="stat-value" id="rag-tokens">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="model-response scrollable" id="rag-response">
+                                <div class="response-placeholder">
+                                    <div class="placeholder-icon">📖</div>
+                                    <p>RAG response will appear here</p>
+                                    <small>Retrieval-augmented generation</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OpenRouter Model Section -->
+                        <div class="model-section openrouter-section">
+                            <div class="model-header">
+                                <h3 class="model-title">🤖 Base Llama Model</h3>
+                                <div class="model-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Response Time:</span>
+                                        <span class="stat-value" id="openrouter-timing">-- ms</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Context Tokens:</span>
+                                        <span class="stat-value" id="openrouter-tokens">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="model-response scrollable" id="openrouter-response">
+                                <div class="response-placeholder">
+                                    <div class="placeholder-icon">🧠</div>
+                                    <p>OpenRouter response will appear here</p>
+                                    <small>General purpose AI model</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Summary -->
+                    <div class="comparison-summary" id="comparison-summary" style="display: none;">
+                        <h3>📊 Comparison Results</h3>
+                        <div class="summary-stats">
+                            <div class="summary-item">
+                                <span class="summary-label">Faster Model:</span>
+                                <span class="summary-value" id="faster-model">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Time Difference:</span>
+                                <span class="summary-value" id="time-difference">--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Token Efficiency:</span>
+                                <span class="summary-value" id="token-comparison">--</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="demo-examples">
-                    <h3>Example Queries:</h3>
+                    <h3>Example EVA Queries:</h3>
                     <div class="example-buttons">
-                        <button class="example-btn" onclick="setExampleQuery('Emergency: suit pressure below 3.0 psi—immediate actions?')">
+                        <button class="example-btn" onclick="setComparisonQuery('Emergency: suit pressure below 3.0 psi—immediate actions?')">
                             Suit Pressure Emergency
                         </button>
-                        <button class="example-btn" onclick="setExampleQuery('Pre-EVA: full airlock depressurization checklist')">
+                        <button class="example-btn" onclick="setComparisonQuery('Pre-EVA: full airlock depressurization checklist')">
                             Airlock Procedures
                         </button>
-                        <button class="example-btn" onclick="setExampleQuery('How do I perform a spacesuit leak check?')">
+                        <button class="example-btn" onclick="setComparisonQuery('How do I perform a spacesuit leak check?')">
                             Leak Check Procedure
                         </button>
-                        <button class="example-btn" onclick="setExampleQuery('What are the emergency communication protocols?')">
+                        <button class="example-btn" onclick="setComparisonQuery('What are the emergency communication protocols?')">
                             Communication Protocols
+                        </button>
+                        <button class="example-btn" onclick="setComparisonQuery('What are my team roles in the space station?')">
+                            Team Roles & Duties
                         </button>
                     </div>
                 </div>

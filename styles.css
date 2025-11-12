@@ -414,14 +414,14 @@ body {
   margin-right: auto;
 }
 
-.demo-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+/* Comparison Controls */
+.comparison-controls {
   margin-bottom: 3rem;
 }
 
-.demo-input-section {
+.query-input-section {
+  max-width: 600px;
+  margin: 0 auto;
   background: var(--card-bg);
   padding: 2rem;
   border-radius: var(--border-radius);
@@ -429,14 +429,7 @@ body {
   box-shadow: var(--shadow);
 }
 
-.input-label {
-  display: block;
-  margin-bottom: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.demo-input {
+.comparison-input {
   width: 100%;
   padding: 1rem;
   background: var(--accent-bg);
@@ -449,55 +442,118 @@ body {
   min-height: 80px;
 }
 
-.demo-input:focus {
+.comparison-input:focus {
   outline: none;
   border-color: var(--text-accent);
   box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
 }
 
-.demo-submit-btn {
+.compare-submit-btn {
   width: 100%;
   margin-top: 1rem;
   position: relative;
 }
 
-.btn-loading {
-  display: none;
+/* Model Comparison */
+.comparison-results {
+  margin-bottom: 3rem;
 }
 
-.demo-output-section {
+.model-comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.model-section {
   background: var(--card-bg);
-  padding: 2rem;
   border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
-.response-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+.aura-section {
+  border-left: 4px solid var(--text-accent);
+}
+
+.rag-section {
+  border-left: 4px solid #10b981;
+}
+
+.openrouter-section {
+  border-left: 4px solid #667eea;
+}
+
+.model-header {
+  padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.2);
 }
 
-.response-header h3 {
+.model-title {
   font-family: var(--font-heading);
-  font-size: 1.3rem;
-  color: var(--text-accent);
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
 }
 
-.response-timing {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
+.model-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
-.response-display {
-  min-height: 200px;
+.stat-value {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+.model-response {
+  padding: 1.5rem;
+  min-height: 250px;
+  max-height: 250px;
   color: var(--text-primary);
   line-height: 1.6;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.model-response.scrollable {
+  /* Custom scrollbar for webkit browsers */
+}
+
+.model-response.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.model-response.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.model-response.scrollable::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.model-response.scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 .response-placeholder {
@@ -511,13 +567,65 @@ body {
 }
 
 .placeholder-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
   opacity: 0.5;
 }
 
 .response-content {
   white-space: pre-wrap;
+  /* Limit visible lines to ~5, then scroll */
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* When response content is present, allow full scrolling */
+.model-response:has(.response-content) .response-content {
+  display: block;
+  -webkit-line-clamp: unset;
+}
+
+/* Comparison Summary */
+.comparison-summary {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(102, 126, 234, 0.1));
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  text-align: center;
+}
+
+.comparison-summary h3 {
+  color: var(--text-accent);
+  margin-bottom: 1.5rem;
+  font-family: var(--font-heading);
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-family: var(--font-heading);
 }
 
 /* Demo Examples */

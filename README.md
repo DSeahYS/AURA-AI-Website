@@ -127,12 +127,32 @@ AuraAIWebsite/
 npm run dev
 ```
 
+Visit `http://localhost:3000` to see the comparison interface.
+
 ### API Testing
 ```bash
-curl -X POST http://localhost:3000/api/query \
+# Test AURA API
+curl -X POST http://localhost:5000/api/query \
   -H "Content-Type: application/json" \
   -d '{"query": "Emergency: suit pressure below 3.0 psi"}'
+
+# Test OpenRouter API
+curl -X POST http://localhost:5000/api/openrouter \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What are emergency procedures?"}'
 ```
+
+### Comparison Demo
+The website provides a side-by-side comparison between three AI models:
+- **🎯 AURA AI**: Fine-tuned model specialized for EVA procedures
+- **📚 Vanilla RAG**: Retrieval-augmented generation using local data
+- **🤖 Base Llama Model**: General purpose AI via OpenRouter
+
+Each shows:
+- Response time in milliseconds
+- Context token usage (input tokens)
+- Full response text (scrollable after 5 lines)
+- Comparison summary with performance metrics
 
 ## 📚 Usage Examples
 
