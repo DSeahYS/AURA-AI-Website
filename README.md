@@ -1,6 +1,7 @@
 # AURA AI - EVA Procedure Assistant Website
 
 A professional web interface for the AURA AI EVA Procedure Assistant, featuring secure API integration and modern web design.
+<img width="1076" height="719" alt="image" src="https://github.com/user-attachments/assets/66f56ab8-713f-43dd-a97a-589f553b4078" />
 
 ## 🚀 Features
 
